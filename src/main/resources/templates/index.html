@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Keycloak & Spring Boot</title>
+</head>
+<body>
+<div class="container">
+    <h1 class="form-signin-heading">Keycloak & Spring Boot</h1>
+    <p>Welcome to a Thymeleaf UI served by Spring Boot and secured using Keycloak!</p>
+    <!-- Show login button if not authenticated -->
+    <div th:if="${!isAuthenticated}">
+        <a href="/oauth2/authorization/keycloak">
+            <button type="button" class="btn btn-lg btn-primary btn-block">Login</button>
+        </a>
+    </div>
+    <!-- Show user info and logout button if authenticated -->
+    <div th:if="${isAuthenticated}">
+        <p>Hi <span th:utext="${name}">..!..</span>!</p>
+        <a href="/logout">
+            <button type="button" class="btn btn-lg btn-primary">Logout</button>
+        </a>
+        <!-- Show "nice" button only for users with the "NICE" authority -->
+        <a th:if="${isNice}" href="/nice">
+            <button type="button" class="btn btn-lg btn-primary">Browse to NICE users page</button>
+        </a>
+    </div>
+</div>
+</body>
+</html>

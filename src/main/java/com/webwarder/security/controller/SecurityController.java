@@ -1,32 +1,35 @@
 package com.webwarder.security.controller;
 
-
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
+import java.util.Objects;
 
-@RestController
-@RequestMapping("/api")
+@Controller
 public class SecurityController {
-
-    @GetMapping("/auth")
-    public HashMap index() {
-        OAuth2User user = ((OAuth2User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        return new HashMap() {{
-            put("Hello" , user.getAttribute("name"));
-            put("Email" , user.getAttribute("email"));
-        }};
+    @GetMapping("/")
+    public String getIndex(Model model , Authentication auth) {
+        model.addAttribute("name",
+                auth instanceof OAuth2AuthenticationToken oauth && oauth.getPrincipal() instanceof OidcUser oidc
+                        ? oidc.getPreferredUsername()
+                        : "");
+        model.addAttribute("isAuthenticated",
+                auth != null && auth.isAuthenticated());
+        model.addAttribute("isNice",
+                auth != null && auth.getAuthorities().stream().anyMatch(authority -> {
+                    return Objects.equals("NICE", authority.getAuthority());
+                }));
+        return "index.html";
     }
 
-    @GetMapping("/unauth")
-    public HashMap unauthenticatedRequest() {
-        return new HashMap() {{
-            put("this is" , "unautheticated");
-        }};
+    @GetMapping("/nice")
+    public String getNice(Model model, Authentication auth) {
+        return "nice.html";
     }
+
 
 }
